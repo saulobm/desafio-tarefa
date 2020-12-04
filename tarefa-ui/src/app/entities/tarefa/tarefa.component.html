@@ -1,0 +1,149 @@
+<div class="card">
+    <app-alert-sys></app-alert-sys>
+    <h1>Lista de Tarefas</h1>
+    <p-toolbar>
+        <div class="ui-g">
+            <div class="ui-g-12 ui-md-6" style="text-align: left;">
+                <button pButton type="button"
+                        style="color: white"
+                        (click)="prepararParaAdicionarTarefa()"
+                        title="CLIQUE AQUI PARA ADICIONAR UMA TAREFA" >
+                    <i class="material-icons">add</i>
+                </button>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="table-responsive">
+        <p-table #dt [value]="tarefas" responsive="true" expandableRows="true" dataKey="id">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 300px; text-align: center;">AÇÕES</th>
+                    <th pSortableColumn="titulo" style="text-align: left;">Título<p-sortIcon field="titulo"></p-sortIcon></th>
+                    <th pSortableColumn="dataCriacao" style="width: 150px; text-align: left;">Data Criação<p-sortIcon field="dataCriacao"></p-sortIcon></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-tarefa>
+                <tr [ngClass]="{'concluido': tarefa.indicadorDeConcluido}">
+                    <td align="center">
+                        <button *ngIf="!(tarefa.indicadorDeConcluido)"
+                                pButton
+                                type="button"
+                                (click)="marcaOuDesmarcaIndicadorConcluido(tarefa)"
+                                title="Ativa como Concluído"
+                                class="btn " >
+                            <i class="material-icons">done</i>
+                        </button>
+                        <button *ngIf="(tarefa.indicadorDeConcluido)"
+                                pButton
+                                type="button"
+                                (click)="marcaOuDesmarcaIndicadorConcluido(tarefa)"
+                                title='Desativa como Concluído'
+                                class="btn green-btn" >
+                            <i class="material-icons">done_all</i>
+                        </button>
+                        <button pButton type="button"
+                                (click)="prepararParaEditarTarefa(tarefa)"
+                                title="Alterar"
+                                class="btn amber-btn"
+                                [disabled]="tarefa.indicadorDeConcluido">
+                            <i class="material-icons">edit</i>
+                        </button>
+                        <button pButton type="button"
+                                (click)="prepararParaExclusao(tarefa)"
+                                title="Excluir"
+                                class="btn red-btn" >
+                            <i class="material-icons">cancel</i>
+                        </button>
+                    </td>
+                    <td align="left">{{tarefa.titulo}}</td>
+                    <td align="center">{{tarefa.dataCriacao | date:'dd/MM/yyyy'}}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td [attr.colspan]="5">
+                        Nenhum registro encontrado!
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-dialog *ngIf="tarefa"
+          header="Tarefa" [(visible)]="displayDialogTarefa"
+          modal="true"
+          [closable]="false"
+          [contentStyle]="{'overflow':'visible', 'max-width': '800px', 'overflow-y': 'auto', 'max-height': '600px'}"
+          [responsive]="true"
+          [baseZIndex]="10000">
+    <form novalidate name="fromTarefa" role="form" #fromTarefa="ngForm">
+        <div class="modal-body ui-g">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-12">
+
+                    <div class="ui-g-12 ui-md-12">
+                        <label class="campoLabel">Título:* </label>
+                        <div class="input-group">
+                            <input pInputText type="text"
+                                   required="true"
+                                   name="titulo"
+                                   [(ngModel)]="tarefa.titulo"/>
+                        </div>
+                    </div>
+                    <div class="ui-g-12 ui-md-12">
+                        <label class="campoLabel">Descricão: </label>
+                        <div class="input-group">
+                            <textarea [rows]="5" [cols]="30" pInputTextarea autoResize="autoResize" name="descricao"
+                                      [(ngModel)]="tarefa.descricao"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-12">
+                    <div class="ui-g-6">
+                        <button type="submit" pButton icon="fa fa-save"
+                                [label]="(tarefa.id == null)? 'CADASTRAR' : 'ALTERAR'"
+                                (click)="adicionaTarefa()"
+                                [disabled]="fromTarefa.invalid"></button>
+                    </div>
+                    <div class="ui-g-6">
+                        <button type="button" pButton icon="fa fa-close" label="CANCELAR" class="red-btn"
+                                (click)="fecharDialog()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<p-dialog *ngIf="tarefa"
+          header="Excluir Tarefa" [(visible)]="displayDialogExclusao"
+          modal="true"
+          [closable]="false"
+          [contentStyle]="{'overflow':'visible', 'max-width': '800px', 'overflow-y': 'auto', 'max-height': '600px'}"
+          [responsive]="true"
+          [baseZIndex]="10000">
+    <form novalidate name="excluirTarefa" role="form" #editFormMovimento="ngForm">
+        <div class="modal-body ui-g">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-md-12">
+                    <div class="ui-g-12 ui-md-12">
+                        <label class="campoLabel">Deseja excluir essa Tarefa? <strong>{{tarefa.titulo}}</strong></label>
+                        <label class="campoLabel"></label>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-12">
+                    <div class="ui-g-6">
+                        <button type="submit" pButton icon="fa fa-save" [label]="'SIM'"
+                                (click)="excluirTarefa()"
+                                [disabled]="editFormMovimento.invalid"></button>
+                    </div>
+                    <div class="ui-g-6">
+                        <button type="button" pButton icon="fa fa-close" label="NÃO" class="red-btn"
+                                (click)="fecharDialogExclusao()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</p-dialog>
