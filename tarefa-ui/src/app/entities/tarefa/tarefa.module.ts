@@ -38,6 +38,8 @@ import {SharedModule} from '../../shared/shared.module';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import {AlertAppModule} from '../../components/alert-app/alert-app.module';
 
+registerLocaleData(localePt);
+
 @NgModule({
   declarations: [TarefaComponent],
   imports: [
